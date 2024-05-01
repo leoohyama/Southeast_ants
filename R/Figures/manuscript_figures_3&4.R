@@ -129,7 +129,7 @@ exotic_plot_slope + exotic_plot_r2 +exotic_int +
 
 #Figure 4
 #now plot model estimates
-model_est=read.csv("manuscript_data_model_plot.csv")
+model_est=read.csv("R/Figures/manuscript_data_model_plot.csv")
 
 model_est<-model_est %>%
   mutate(Grain = fct_relevel(Grain, 

@@ -1,4 +1,5 @@
 library(tidyverse)
+library(ggrepel)
 
 
 #read in poly
@@ -87,27 +88,7 @@ worker_traits_sp<-worker %>%group_by(SPECIES) %>%
 HW_colony<-left_join(worker_traits_sp, sp_size, by = "SPECIES") %>%
   drop_na(median_size)
  
-library(ggrepel)
-ggplot() +
-  geom_jitter(data = HW_colony ,aes(x = HW, y = median_size), color = "grey") +
-  geom_jitter(data = HW_colony %>% filter(HW <1.5 & median_size > 10000),
-             aes(x = HW, y = median_size), color = "black",pch = 21, fill = "red",
-             size = 4) +
-  geom_text_repel(data = HW_colony %>% filter(HW <1.5 & median_size > 10000), 
-    aes(x = HW, y = median_size, label = SPECIES),
-    size = 5,
-    force             = 0.5,
-    nudge_x           = 1,
-    direction         = "y",
-    hjust             = -0.5,
-    vjust = 1.5,
-    segment.size      = 0.3,
-    segment.curvature = 0
-  ) +
-  scale_y_log10() +
-  labs(x = "Head Width", y = "log(Colony Size)") +
-  theme_bw() +
-  theme(axis.title = element_blank())
+
 
 #####
 #give ,me the number of NAs for each trait
@@ -296,13 +277,7 @@ data_final %>%
   summarise(n=n())
 
 ##nonnative plot
-library(ggrepel)
 plot<-readRDS( "traits/species_final_traits.rds")
-
-plot$SPECIES
-
-plot %>%
-  filter(QWD_n >0)
 
 ggplot() +
   geom_point(data = plot %>%
@@ -316,12 +291,18 @@ ggplot() +
                                      "Pheidole morrisii", 
                                      "Solenopsis geminata")), aes(x = QWD_n, y = median_size),
              pch =21, fill = "red", size = 4) +
+  geom_point(data = plot %>%
+               filter(QWD_n >0) %>%
+               filter(SPECIES %in% c(
+                 "Solenopsis invicta")), aes(x = QWD_n, y = median_size),
+             pch =21, fill = "black", size = 4) +
   geom_text_repel(data = plot %>%
                     filter(QWD_n >0) %>%
                     filter(SPECIES %in% c(
                       "Pheidole dentata",
                       "Monomorium minimum", "Pheidole morrisii",
-                      "Solenopsis geminata")), 
+                      "Solenopsis geminata",
+                      "Solenopsis invicta")), 
                   aes(x = QWD_n, y = median_size, label = SPECIES),
                   size = 5,
                   force             = 0.5,
