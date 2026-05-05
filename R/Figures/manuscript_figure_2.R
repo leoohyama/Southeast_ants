@@ -246,3 +246,128 @@ large<-ggplot() +
         legend.direction = "vertical") 
 small +med + large + plot_layout(guides = "collect")
 
+
+
+####new plot with just middle res
+
+
+#let's take a look to see if we have any nonnative agt 0 with slope changes
+
+wtf<-diff_total %>% filter(resolution == "~1,770km2")
+ggplot(wtf) +
+  geom_point(aes(x = exotic_perc_avg, y = slope_diff)) +
+  labs(x = "Average Non-Native and Percentage", 
+       y = "Average slope difference")
+unique(diff_total$resolution)
+
+library(ggplot2)
+library(patchwork)
+
+
+# --- PLOT A: TOTAL ---
+total <- ggplot() +
+  geom_sf(data = states_poly, fill = "black", color = "white") +
+  geom_sf(data = diff_total %>% filter(resolution == "~1,770km2"), 
+          aes(fill = slope_diff, color = slope_diff)) +
+  geom_sf(data = L, color = "white") +
+  scale_x_continuous(breaks = c(-88, -85, -82)) +
+  facet_wrap(~PGLS_sample_size, nrow = 1 ) +
+  theme_minimal() +
+  # Removed the \n line breaks since the title now has room above the bar
+  labs(fill = "Slope difference",
+       color = "Slope difference") +
+  scale_fill_gradient2(
+    low = "deepskyblue", mid = "azure3", high = "orange",
+    midpoint = 0,
+    name = "Slope difference"
+  ) + 
+  scale_color_gradient2(
+    low = "deepskyblue", mid = "azure3", high = "orange",
+    midpoint = 0,
+    name = "Slope difference"
+  ) + 
+  coord_sf(xlim = c(605755.4, 1632548.473),
+           ylim = c(1406449.988, 250506.46)) +
+  
+  # NEW: Shorter barwidth (10cm) and title moved to the TOP of the bar
+  guides(
+    fill = guide_colorbar(barwidth = unit(10, "cm"), 
+                          barheight = unit(0.5, "cm"),
+                          title.position = "top", 
+                          title.hjust = 0.5), 
+    color = guide_colorbar(barwidth = unit(10, "cm"), 
+                           barheight = unit(0.5, "cm"),
+                           title.position = "top", 
+                           title.hjust = 0.5)
+  ) +
+  
+  theme(panel.background = element_rect(fill = "white"),
+        panel.grid = element_line(color = "grey",  linetype = 3),
+        legend.position = "top",
+        legend.direction = "horizontal",
+        axis.title = element_blank(),
+        
+        # NEW: margin(b = 8) adds space strictly below the title so it doesn't touch the bar
+        legend.title = element_text(face = "bold", size = 14,
+                                    margin = margin(b = 8)),
+        legend.text = element_text(size = 12), 
+        plot.background = element_blank())
+
+
+# --- PLOT B: TOTAL NON-NATIVE ---
+total_non <- ggplot() +
+  geom_sf(data = states_poly, fill = "black", color = "white") +
+  geom_sf(data = diff_total %>% filter(resolution == "~1,770km2"), 
+          aes(fill = exotic_perc_avg * 100, 
+              color = exotic_perc_avg * 100)) +
+  geom_sf(data = L, color = "white") +
+  scale_x_continuous(breaks = c(-88, -85, -82)) +
+  facet_wrap(~PGLS_sample_size, nrow = 1) +
+  theme_minimal() + 
+  labs(fill = "Non-native ant %", color = "Non-native ant %") +
+  scale_fill_viridis_c(option = "H") + 
+  scale_color_viridis_c(option = "H") + 
+  coord_sf(xlim = c(605755.4, 1632548.473),
+           ylim = c(1406449.988, 250506.46)) +
+  
+  # NEW: Matched exactly to the 'total' plot above
+  guides(
+    fill = guide_colorbar(barwidth = unit(10, "cm"), 
+                          barheight = unit(0.5, "cm"),
+                          title.position = "top", 
+                          title.hjust = 0.5), 
+    color = guide_colorbar(barwidth = unit(10, "cm"), 
+                           barheight = unit(0.5, "cm"),
+                           title.position = "top", 
+                           title.hjust = 0.5)
+  ) +
+  
+  theme(panel.background = element_rect(fill = "white"),
+        panel.grid = element_line(color = "grey",  linetype = 3),
+        legend.position = "top",
+        legend.direction = "horizontal",
+        axis.title = element_blank(),
+        
+        legend.title = element_text(face = "bold", size = 14,
+                                    margin = margin(b = 8)),
+        legend.text = element_text(size = 12), 
+        plot.background = element_blank())
+
+
+# --- COMBINE AND SAVE ---
+final_map_plot <- total + total_non + 
+  plot_layout(nrow = 2) +
+  plot_annotation(tag_levels = 'A') & 
+  theme(
+    legend.box.spacing = unit(0, "pt"),
+    plot.background = element_blank(),
+    plot.tag = element_text(family = "sans", face = "bold", size = 10),
+    plot.tag.position = "topleft"
+  )
+
+ggsave(filename = "OHYAMA-Fig2.pdf", 
+       plot = final_map_plot,
+       device = cairo_pdf, 
+       width = 170,           
+       height = 180,          
+       units = "mm")

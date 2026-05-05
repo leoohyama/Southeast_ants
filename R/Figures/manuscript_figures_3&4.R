@@ -165,3 +165,103 @@ ggplot() +
   theme(axis.title.y = element_blank()) +
   scale_fill_viridis_d(option = "F") +
   scale_color_viridis_d(option = "F")
+
+
+
+library(ggplot2)
+library(patchwork)
+
+# --- PLOT 1: Slope ---
+exotic_plot_slope <- ggplot(data = differences_all %>%
+                              filter(resolution == "~1,770km2")) +
+  geom_point(aes(x = exotic_perc_avg*100, y= slope_diff,
+                 fill = PGLS_sample_size), pch = 21, 
+             size = 3, alpha = 0.6) +
+  geom_smooth(aes(x = exotic_perc_avg*100, y= slope_diff,
+                  color = PGLS_sample_size,
+                  fill = PGLS_sample_size), alpha = 0.2, method = "lm") +
+  geom_hline(yintercept = 0, lty =2) +
+  theme_light() +
+  labs(x = "Non-native ant %",
+       color = "PGLS sample size",
+       y = "Slope Difference", fill = "PGLS sample size") +
+  scale_fill_viridis_d(option = "F") +
+  scale_color_viridis_d(option = "F") +
+  # NEW: Shrunk text to fit an 82mm column width
+  theme(axis.title = element_text(size = 9),
+        axis.text = element_text(size = 8))
+
+# --- PLOT 2: R2 ---
+exotic_plot_r2 <- ggplot(data = differences_all %>% 
+                           filter(resolution == "~1,770km2") ) +
+  geom_point(aes(x = exotic_perc_avg*100, y= r2_diff,
+                 fill = PGLS_sample_size), pch = 21, color = "black", 
+             size = 3, alpha = 0.6) +
+  geom_smooth(aes(x = exotic_perc_avg*100, y= r2_diff,
+                  color = PGLS_sample_size,
+                  fill = PGLS_sample_size), alpha = 0.2, method = "lm") +
+  geom_hline(yintercept = 0, lty =2) +
+  theme_light() +
+  labs(x = "Non-native ant %",
+       color = "PGLS sample size",
+       y = expression(R^2~"Difference"), 
+       fill = "PGLS sample size") +
+  scale_fill_viridis_d(option = "F")+
+  scale_color_viridis_d(option = "F") +
+  # NEW: Shrunk text to fit an 82mm column width
+  theme(axis.title = element_text(size = 9),
+        axis.text = element_text(size = 8))
+
+# --- PLOT 3: Intercept ---
+exotic_int <- ggplot(data = differences_all %>%
+                       filter(resolution == "~1,770km2")) +
+  geom_point(aes(x = exotic_perc_avg*100, y= int_diff,
+                 fill = PGLS_sample_size), pch = 21, color = "black", 
+             size = 3, alpha = 0.6) +
+  geom_smooth(aes(x = exotic_perc_avg*100, y= int_diff,
+                  color = PGLS_sample_size,
+                  fill = PGLS_sample_size), alpha = 0.2, method = "lm") +
+  geom_hline(yintercept = 0, lty =2) +
+  theme_light() +
+  labs(x = "Non-native ant %",
+       color = "PGLS sample size",
+       y = "Intercept Difference", fill = "PGLS sample size") +
+  scale_fill_viridis_d(option = "F") +
+  scale_color_viridis_d(option = "F") +
+  # NEW: Shrunk text to fit an 82mm column width
+  theme(axis.title = element_text(size = 9),
+        axis.text = element_text(size = 8))
+
+
+# --- COMBINE & SAVE ---
+final_plot <- exotic_plot_slope + exotic_plot_r2 + exotic_int +
+  plot_layout(nrow = 3, guides = "collect", axis_titles = "collect") +
+  plot_annotation(tag_levels = 'A') & 
+  
+  theme(
+    legend.position = "top",             
+    legend.direction = "horizontal",
+    
+    # NEW: Shrink legend text and add slight left margin so Y-axis titles don't clip
+    legend.title = element_text(size = 9, face = "bold"),
+    legend.text = element_text(size = 8),
+    plot.margin = margin(t = 5, r = 5, b = 5, l = 8), 
+    
+    plot.tag = element_text(family = "sans", face = "bold", size = 10),
+    plot.tag.position = "topleft"
+  ) &   
+  
+  # NEW: Move legend title to the top of the keys to save horizontal space
+  guides(
+    fill = guide_legend(nrow = 1, title.position = "top", title.hjust = 0.5),      
+    color = guide_legend(nrow = 1, title.position = "top", title.hjust = 0.5)
+  )
+
+# Export at 82mm width
+ggsave(filename = "OHYAMA-Fig3.pdf", 
+       plot = final_plot,
+       device = cairo_pdf,             
+       width = 82,                    
+       height = 200,                   
+       units = "mm")
+

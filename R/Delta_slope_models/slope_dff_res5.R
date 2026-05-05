@@ -245,6 +245,18 @@ exotic_model <- sdmTMB(
 )
 sanity(exotic_model)
 
+exotic_model_temp <- sdmTMB(
+  slope_diff ~  scale(avg_model_used) + scale(MAT) + 
+    scale(exotic_perc_avg),
+  data = data_model,
+  mesh = meshe,
+  family = gaussian(link = "identity"),
+  spatial = "on",
+  silent = FALSE # see progress
+)
+
+bbmle::AICtab(exotic_model, exotic_model_temp, weights = TRUE)
+
 summary(exotic_model)
 tidy(exotic_model,conf.int = TRUE,
      conf.level = 0.95)
@@ -330,6 +342,21 @@ exotic_model <- sdmTMB(
   spatial = "on",
   silent = FALSE # see progress
 )
+
+
+exotic_model_temp <- sdmTMB(
+  slope_diff ~  scale(avg_model_used) + scale(MAT) + 
+    scale(exotic_perc_avg),
+  data = data_model,
+  mesh = meshe,
+  family = gaussian(link = "identity"),
+  spatial = "on",
+  silent = FALSE # see progress
+)
+
+bbmle::AICtab(exotic_model, exotic_model_temp, weights = TRUE)
+
+
 sanity(exotic_model)
 summary(exotic_model)
 tidy(exotic_model)
@@ -412,6 +439,20 @@ exotic_model <- sdmTMB(
   silent = FALSE # see progress
 )
 sanity(exotic_model)
+
+
+exotic_model_temp <- sdmTMB(
+  slope_diff ~  scale(avg_model_used) + scale(MAT) + 
+    scale(exotic_perc_avg),
+  data = data_model,
+  mesh = meshe,
+  family = gaussian(link = "identity"),
+  spatial = "on",
+  silent = FALSE # see progress
+)
+
+bbmle::AICtab(exotic_model, exotic_model_temp, weights = TRUE)
+
 
 summary(exotic_model)
 tidy(exotic_model)

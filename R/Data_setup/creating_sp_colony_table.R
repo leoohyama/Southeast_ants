@@ -96,6 +96,13 @@ for (i in seq_along(worker_traits_sp)) {
   na<-length(which(is.na(worker_traits_sp[,i])))
   print(c(colnames(worker_traits_sp)[[i]], na))
 }
+
+
+worker_traits_sp %>%
+  filter(is.na(HW))
+worker_traits_sp %>%
+  filter(is.na(WL))
+
 worker_traits_sp$genus<-str_extract(worker_traits_sp$SPECIES, "[^\\s]+")
 
 #read in queen traits
@@ -128,6 +135,16 @@ for (i in seq_along(queen_traits_sp)) {
   na<-length(which(is.na(queen_traits_sp[,i])))
   print(c(colnames(queen_traits_sp)[[i]], na))
 }
+
+queen_traits_sp %>%
+  filter(is.na(HW)) %>%
+  mutate(genus = str_extract(SPECIES, "[^\\s]+")) %>%
+  group_by(genus) %>%
+  count()
+  
+worker_traits_sp %>%
+  filter(is.na(WL))
+
 
 #get QWD by each worker specimen
 
@@ -236,7 +253,8 @@ for(i in 1:nrow(QWD_traits)){
   }
 }
 
-
+QWD_traits %>%
+  count(QWDimpute)
 
 #now join with colony
 QWD_only<-QWD_traits %>% dplyr::select(SPECIES, QWD_HW, QWD, QWD_n)
